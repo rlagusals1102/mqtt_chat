@@ -1,5 +1,3 @@
-// client.c
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +8,6 @@
 #define BROKER_PORT 1883
 #define TOPIC "chat"
 
-// MQTT 연결 시 호출되는 콜백 함수
 void on_connect(struct mosquitto *mosq, void *obj, int rc)
 {
     if (rc != 0) {
@@ -20,10 +17,9 @@ void on_connect(struct mosquitto *mosq, void *obj, int rc)
     mosquitto_subscribe(mosq, NULL, TOPIC, 0);
 }
 
-// 메시지 수신 시 호출되는 콜백 함수
 void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
 {
-    printf("Received message: %s\n", (char *)msg->payload);
+    printf("message: %s\n", (char *)msg->payload);
 }
 
 int main(int argc, char *argv[])
@@ -33,7 +29,6 @@ int main(int argc, char *argv[])
     char *ip_address = get_ip_address();
 
     if (ip_address == NULL) {
-        fprintf(stderr, "Could not get IP address.\n");
         return 1;
     }
 
@@ -41,7 +36,7 @@ int main(int argc, char *argv[])
 
     mosq = mosquitto_new(NULL, true, NULL);
     if (!mosq) {
-        fprintf(stderr, "Error: Out of memory.\n");
+        fprintf(stderr, "error\n");
         return 1;
     }
 
@@ -49,20 +44,20 @@ int main(int argc, char *argv[])
     mosquitto_message_callback_set(mosq, on_message);
 
     if (mosquitto_connect(mosq, BROKER_ADDRESS, BROKER_PORT, 60) != MOSQ_ERR_SUCCESS) {
-        fprintf(stderr, "Unable to connect.\n");
+        fprintf(stderr, "unable to connect.\n");
         return 1;
     }
 
     mosquitto_loop_start(mosq);
 
-    printf("Enter your messages. Type 'exit' to quit.\n");
+    printf("--------------------------------.\n");
     while (1) {
         fgets(message, sizeof(message), stdin);
-        message[strcspn(message, "\n")] = '\0'; // Remove newline character
+        message[strcspn(message, "\n")] = '\0'; 
 
-        if (strcmp(message, "exit") == 0) {
+        if (strcmp(message, "exit") == 0) 
             break;
-        }
+        
 
         char full_message[300];
         snprintf(full_message, sizeof(full_message), "%s: %s", ip_address, message);
